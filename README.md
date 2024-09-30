@@ -10,6 +10,9 @@ PyQt5
 to install dependencies write this in the terminal:
 pip install PyQt5
 
+To enter your own schedule, alter the scheduler.py file. 
+Be sure to preserve the time format (millitary time) or the program will not run.
+
 ## To-Do List
 - [*] Optimize timer functionality
 - [ ] Add exit feature
