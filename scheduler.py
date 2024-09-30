@@ -43,7 +43,7 @@ class ScheduleWidget(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.updateHighlight)
-        self.timer.start(1000)  # Check every second
+        self.timer.start(60000)  # Check every minute(60,000 miliseconds)
         self.updateHighlight()  # Initial highlight
 
     def updateHighlight(self):
