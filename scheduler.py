@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QSizePolicy
-from PyQt5.QtCore import QTimer, QTime
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QSizePolicy, QPushButton, QMessageBox
+from PyQt5.QtCore import QTimer, QTime, Qt
 
 tasks = [
     ("09:00", "Morning Exercise"),
@@ -15,7 +15,6 @@ tasks = [
     ("22:00", "Prepare for Tomorrow"),
 ]
 
-
 class ScheduleWidget(QWidget):
     def __init__(self):
         super().__init__()
@@ -26,12 +25,12 @@ class ScheduleWidget(QWidget):
         self.task_times = []
 
         for time, task in tasks:
-            task_time = QTime.fromString(time.strip(), "HH:mm")  # Military time format
+            task_time = QTime.fromString(time.strip(), "HH:mm")
 
             if task_time.isValid():
-                self.task_times.append((task_time, task))  # Append time and task
+                self.task_times.append((task_time, task))
             else:
-                print(f"Invalid time format for {time}")  # Debugging line
+                print(f"Invalid time format for {time}")
 
             task_label = QLabel(f"{time} - {task}")
             task_label.setStyleSheet("background-color: grey; padding: 10px;")
@@ -43,24 +42,39 @@ class ScheduleWidget(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.updateHighlight)
-        self.timer.start(60000)  # Check every minute(60,000 miliseconds)
+        self.timer.start(60000)
         self.updateHighlight()  # Initial highlight
+
+        # Add exit button
+        self.exit_button = QPushButton("Exit")
+        self.exit_button.clicked.connect(self.confirm_exit)
+        self.layout.addWidget(self.exit_button)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Q and event.modifiers() == Qt.ControlModifier:
+            self.confirm_exit()
 
     def updateHighlight(self):
         current_time = QTime.currentTime()
 
         for i, (task_time, task) in enumerate(self.task_times):
-            # Determine the end time for the current task
             if i + 1 < len(self.task_times):
-                end_time = self.task_times[i + 1][0]  # Use the next task's start time
+                end_time = self.task_times[i + 1][0]
             else:
-                end_time = QTime(23, 59)  # Last task ends at 11:59 PM
+                end_time = QTime(23, 59)
 
-            # Highlight if the current time is between the task's start time and the next task's start time
             if task_time <= current_time < end_time:
                 self.task_labels[i].setStyleSheet("background-color: yellow; padding: 10px;")
             else:
                 self.task_labels[i].setStyleSheet("background-color: grey; padding: 10px;")
+
+    def confirm_exit(self):
+        reply = QMessageBox.question(self, 'Exit Confirmation', 
+                                     'Are you sure you want to exit?', 
+                                     QMessageBox.Yes | QMessageBox.No, 
+                                     QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            QApplication.quit()  # Quit the application
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
